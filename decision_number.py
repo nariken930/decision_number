@@ -12,6 +12,7 @@ from sklearn import svm, tree
 from skimage import io
 from skimage.measure import label, regionprops
 from skimage.color import label2rgb
+from skimage.filters import try_all_threshold, threshold_otsu, threshold_mean, threshold_li
 import function_props
 
 #学習データの読込
@@ -33,14 +34,15 @@ tree.export_graphviz(classifier, out_file="tree.dot",
                      )
 
 #画像読み込み
-img = io.imread('numbers1.png', as_grey=True) #入力画像を読み込み
+img = io.imread('numbers1s.png', as_grey=True) #入力画像を読み込み
 
 h_img, w_img = img.shape
 size_img = h_img * w_img
 print("height : {}\nwidth : {}\nsize : {}".format(h_img, w_img, size_img) )
 
 #二値化
-bimg = img < 0.7
+thresh = threshold_otsu(img) #しきい値決定（大津）
+bimg = img < thresh
 
 #ラベリング
 label_img = label(bimg)
@@ -56,12 +58,13 @@ data = data.tolist()
 pred_y = classifier.predict(data)
 
 #入力画像と判別ラベルの確認
-fig = plt.figure(figsize=(12,8))
+fig = plt.figure(figsize=(12,8) )
 bx = fig.add_subplot(121)
-bx.imshow(label2rgb(label_img,bg_label=0))
+bx.imshow(label2rgb(label_img,bg_label=0) )
 
 ax = fig.add_subplot(122)
 ax.imshow(img, cmap='gray')
 for i, num in enumerate(pred_y):
-    ax.annotate(str(int(num)), xy=pos[i], xytext=np.array(pos[i])+np.array((10,0)))
+    ax.annotate(str(int(num)), xy=pos[i], xytext=np.array(pos[i]) + np.array((10,0) ) )
+plt.savefig("result.png")
 plt.show()

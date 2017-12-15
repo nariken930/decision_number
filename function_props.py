@@ -11,7 +11,7 @@ def props_img(label_img, height, width, index = None):
     #数字特徴量抽出
     props = regionprops(label_img)
     
-    norm = 1
+    norm = height*width / 10000
     
     #データ出力
     data = []
@@ -32,7 +32,7 @@ def props_img(label_img, height, width, index = None):
         vec.append(h / norm) #高さ
      
         fprop = regionprops(label(p.filled_image)) #穴を塗りつぶした領域の特徴量
-        vec.extend(np.array(fprop[0].centroid) - np.array(p.centroid) ) #穴を塗りつぶしたときの重心と，数字だけの重心の差
+        vec.extend((np.array(fprop[0].centroid) - np.array(p.centroid) ) / norm ) #穴を塗りつぶしたときの重心と，数字だけの重心の差
         vec.extend(np.array(p.centroid)) #数字の重心座標
         data.append(vec)
         

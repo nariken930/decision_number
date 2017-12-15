@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from skimage import io
 from skimage.measure import label, regionprops
+from skimage.filters import try_all_threshold, threshold_otsu, threshold_mean, threshold_li
 import function_props
 
 def main():
@@ -30,7 +31,8 @@ def main():
     plt.show()
      
     #二値化
-    bimg = img < 0.7
+    thresh = threshold_otsu(img) #しきい値決定（大津）
+    bimg = img < thresh
      
     #ラベリング
     label_img = label(bimg)
