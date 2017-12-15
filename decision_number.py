@@ -12,7 +12,7 @@ from sklearn import svm, tree
 from skimage import io
 from skimage.measure import label, regionprops
 from skimage.color import label2rgb
-from number_props import props_img
+import function_props
 
 #学習データの読込
 df = pd.read_csv('digit_features.csv')
@@ -33,7 +33,7 @@ tree.export_graphviz(classifier, out_file="tree.dot",
                      )
 
 #画像読み込み
-img = io.imread('numbers0.png', as_grey=True) #入力画像を読み込み
+img = io.imread('numbers1.png', as_grey=True) #入力画像を読み込み
 
 h_img, w_img = img.shape
 size_img = h_img * w_img
@@ -46,37 +46,12 @@ bimg = img < 0.7
 label_img = label(bimg)
 label_img[label_img==1] = 0 #枠を除外．ラスタスキャンなので１番が枠になる．
 
-data = props_img(label_img=label_img, height=h_img, width=w_img, index=None)
+data = function_props.props_img(label_img=label_img, height=h_img, width=w_img, index=None)
 data = np.array(data)
-print(data)
-pos = data[:, -2:]
-print(pos)
+pos = np.concatenate((np.c_[data[:, -1] ], np.c_[data[:, -2] ] ), axis=1)
+pos = pos.tolist()
 data = data[:, :-2]
-print(data)
-##数字特徴量抽出
-#props = regionprops(label_img)
-#
-#data = []
-#pos = []
-#for p in props:
-#    vec = []
-#    vec.append(p.area / size_img) #数字領域の面積
-#    vec.append(p.filled_area / size_img - p.area / size_img) #穴の面積
-#    vec.append(p.convex_area / size_img - p.filled_area / size_img) #凹部面積
-#    vec.append(p.euler_number) #オイラー数
-#    vec.append(p.perimeter / size_img) #周囲長
-# 
-#    uy, lx, ly, rx = p.bbox #外接枠
-#    w = rx - lx
-#    h = ly - uy
-#    vec.append(w / size_img) #幅
-#    vec.append(h / size_img) #高さ
-# 
-#    fprop = regionprops(label(p.filled_image)) #穴を塗りつぶした領域の特徴量
-#    vec.extend((np.array(fprop[0].centroid) - np.array(p.centroid) ) / size_img) #穴を塗りつぶしたときの重心と，数字だけの重心の差
-#    data.append(vec)
-#
-#    pos.append( (p.centroid[1], p.centroid[0]) ) #数字の重心座標
+data = data.tolist()
 
 pred_y = classifier.predict(data)
 
